@@ -12,18 +12,20 @@ window.App = (function(superClass) {
   App.prototype.initialize = function() {
     var deck;
     this.set('currentMoney', 1000);
+    this.set('betMoney', 0);
     this.set('winner', 'nobody');
     this.set('deck', deck = new Deck());
     this.set('playerHand', deck.dealPlayer());
-    this.set('dealerHand', deck.dealDealer());
-    return this.get('playerHand').on('stand', (function() {
-      this.get('dealerHand').at(0).flip();
-      while (this.get('dealerHand').currentBestScore() < 17 && this.get('dealerHand').currentBestScore()) {
-        this.get('dealerHand').hit();
-      }
-      console.log(this.get('betMoney'));
-      return this.determineWinner();
-    }), this);
+    return this.set('dealerHand', deck.dealDealer());
+  };
+
+  App.prototype.stand = function() {
+    this.get('dealerHand').at(0).flip();
+    while (this.get('dealerHand').currentBestScore() < 17 && this.get('dealerHand').currentBestScore()) {
+      this.get('dealerHand').hit();
+    }
+    this.determineWinner();
+    return this.money();
   };
 
   App.prototype.determineWinner = function() {
@@ -35,14 +37,14 @@ window.App = (function(superClass) {
       this.set('winner', 'nobody');
     }
     winner = this.get('winner');
-    return alert(winner + " won");
+    return console.log(winner);
   };
 
   App.prototype.money = function() {
     var winner;
     winner = this.get('winner');
     if (winner === 'player') {
-      this.set('currentMoney', this.get('currentMoney') + this.get('betMoney'));
+      this.set('currentMoney', parseInt(this.get('currentMoney')) + parseInt(this.get('betMoney')));
     }
     if (winner === 'dealer') {
       return this.set('currentMoney', this.get('currentMoney') - this.get('betMoney'));

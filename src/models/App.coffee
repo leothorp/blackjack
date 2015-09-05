@@ -3,19 +3,20 @@
 class window.App extends Backbone.Model
   initialize: ->
     @set 'currentMoney', 1000
+    @set 'betMoney', 0
     @set 'winner', 'nobody'
     @set 'deck', deck = new Deck()
     @set 'playerHand', deck.dealPlayer()
     @set 'dealerHand', deck.dealDealer()
-    @get('playerHand').on('stand', (-> 
-      @get('dealerHand').at(0).flip()    
-      @get('dealerHand').hit() while @get('dealerHand').currentBestScore() < 17 && @get('dealerHand').currentBestScore()
-      console.log(@get('betMoney'))
-      @determineWinner()
-      )
-    ,@)
+
   
+  stand: ->
+    @get('dealerHand').at(0).flip()
+    @get('dealerHand').hit() while @get('dealerHand').currentBestScore() < 17 && @get('dealerHand').currentBestScore()
+    @determineWinner()
+    @money()
       
+
   determineWinner: ->
     playerScore = @get('playerHand').currentBestScore()
     dealerScore = @get('dealerHand').currentBestScore()
@@ -23,9 +24,11 @@ class window.App extends Backbone.Model
     if playerScore == dealerScore 
       @set('winner', 'nobody') 
     winner = @get('winner')   
-    alert("#{winner} won") 
+    # alert("#{winner} won")
+    console.log(winner)
 
   money: ->
     winner = @get('winner')
-    if (winner == 'player') then @set 'currentMoney', @get('currentMoney') + @get('betMoney')
+    # console.log('currentMoney: '+ typeof @get('currentMoney')+' betMoney: '+ typeof @get('betMoney'))
+    if (winner == 'player') then @set 'currentMoney', parseInt(@get('currentMoney')) + parseInt(@get('betMoney'))
     if (winner == 'dealer') then @set 'currentMoney', @get('currentMoney') - @get('betMoney')

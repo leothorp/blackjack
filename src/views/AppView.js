@@ -9,7 +9,7 @@ window.AppView = (function(superClass) {
     return AppView.__super__.constructor.apply(this, arguments);
   }
 
-  AppView.prototype.template = _.template('<button class="hit-button">Hit</button> <button class="stand-button">Stand</button> <span class="currentMoney"></span> <input type="number" class="betMoney" placeholder="Enter your bet"></input> <div class="player-hand-container"></div> <div class="dealer-hand-container"></div>');
+  AppView.prototype.template = _.template('<button class="hit-button">Hit</button> <button class="stand-button">Stand</button> <input type="number" class="betMoney" placeholder="Enter your bet"></input> <span class="currentMoney">Your money: $</span> <div class="winner">Winner: </div> <div class="player-hand-container"></div> <div class="dealer-hand-container"></div>');
 
   AppView.prototype.events = {
     'click .hit-button': function() {
@@ -19,16 +19,29 @@ window.AppView = (function(superClass) {
       this.model.get('playerHand').stand();
       this.$el.find('.stand-button').attr('disabled', true);
       this.$el.find('.hit-button').attr('disabled', true);
-      this.model.set('betMoney', this.$el.find('.betMoney').val());
+      if (this.$el.find('.betMoney').val() > this.model.get('currentMoney')) {
+        this.$el.find('.betMoney').val(this.model.get('currentMoney'));
+        alert('bet exceeds current money.  Bet changed to equal current money.');
+      }
+      this.model.set('betMoney', this.$el.find('.betMoney').val() || 0);
+      console.log(this.model.get('betMoney'));
       this.$el.find('.betMoney').attr('disabled', true);
-      return this.render();
+      this.model.stand();
+      this.$el.find('.currentMoney').text('Your money: $' + this.model.get('currentMoney'));
+      this.model.set('playerHand', this.model.get('deck').dealPlayer());
+      this.model.set('dealerHand', this.model.get('deck').dealDealer());
+      this.$el.find('.winner').text('Winner: ' + this.model.get('winner'));
+      return setTimeout(((function(_this) {
+        return function() {
+          return _this.initialize();
+        };
+      })(this)), 1500);
     }
   };
 
   AppView.prototype.initialize = function() {
     this.render();
-    this.$el.find('.currentMoney').text(this.model.get('currentMoney'));
-    return this.model.on('change : winner');
+    return this.$el.find('.currentMoney').text('Your money: $' + this.model.get('currentMoney'));
   };
 
   AppView.prototype.render = function() {
