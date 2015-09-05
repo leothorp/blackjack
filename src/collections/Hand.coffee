@@ -14,10 +14,25 @@ class window.Hand extends Backbone.Collection
     score + if card.get 'revealed' then card.get 'value' else 0
   , 0
 
+  stand: -> 
+    @trigger('stand', @)
+
   scores: ->
     # The scores are an array of potential scores.
     # Usually, that array contains one element. That is the only score.
     # when there is an ace, it offers you two scores - the original score, and score + 10.
     [@minScore(), @minScore() + 10 * @hasAce()]
+
+  under: (score) -> 
+    score <= 21
+
+  notOverScores: -> 
+    _.filter(@scores(), @under)  
+
+  currentBestScore: ->
+    notOverScores = @notOverScores()
+    if notOverScores.length < 2 then notOverScores[0] || null else Math.max.apply(null, notOverScores)
+
+
 
 
